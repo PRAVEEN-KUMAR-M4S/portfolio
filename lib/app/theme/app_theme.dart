@@ -1,0 +1,17 @@
+import 'package:flutter/material.dart';
+import 'app_colors.dart';
+import 'app_text_styles.dart';
+
+class AppTheme {
+  static ThemeData lightTheme = ThemeData(
+    primaryColor: AppColors.primary,
+    scaffoldBackgroundColor: AppColors.background,
+    textTheme: AppTextStyles.textTheme,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      surface: AppColors.surface,
+    ),
+    dividerColor: AppColors.divider,
+    useMaterial3: true,
+  );
+}

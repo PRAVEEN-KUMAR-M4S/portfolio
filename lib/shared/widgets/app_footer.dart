@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../app/theme/app_colors.dart';
+
+class AppFooter extends StatelessWidget {
+  const AppFooter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Colors.black.withOpacity(0.05)),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Made with love :)',
+            style: GoogleFonts.nanumPenScript(
+              fontSize: 20,
+              color: AppColors.primary,
+            ),
+          ),
+          Row(
+            children: [
+              _SocialIcon(asset: 'assets/images/instagram.webp', url: ''),
+              const SizedBox(width: 8),
+              _SocialIcon(asset: 'assets/images/twitter.webp', url: ''),
+              const SizedBox(width: 8),
+              _SocialIcon(asset: 'assets/images/linkedin.webp', url: ''),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SocialIcon extends StatelessWidget {
+  const _SocialIcon({required this.asset, required this.url});
+  final String asset;
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // url_launcher can be used here when URL is provided
+      },
+      child: Image.asset(asset, width: 25, height: 25),
+    );
+  }
+}
