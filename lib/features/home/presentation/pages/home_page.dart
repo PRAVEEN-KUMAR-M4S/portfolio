@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:personal_portfolio_paper_flutter/shared/widgets/app_footer.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../state/skills_animation_cubit.dart';
 import '../widgets/skills_section.dart';
@@ -105,6 +106,7 @@ class _HomePageContent extends StatelessWidget {
               style: GoogleFonts.dmSans(fontSize: 18, color: AppColors.primary),
             ),
           ),
+          const AppFooter(),
         ],
       ),
     );
@@ -163,40 +165,59 @@ class _WideHero extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-        final bucketWidth = (availableWidth * 0.45).clamp(280.0, 500.0);
-        // Bucket body starts at this Y within the SizedBox.
-        // Cards stick out above it, matching Next.js -top-40/-top-25/-top-20.
-        const bucketBodyTop = 220.0;
+        final bucketWidth = (availableWidth * 0.50).clamp(280.0, 500.0);
+
+        // Match React: bucket at top:0 left:0, all cards/ring relative to that
+        // We use bucketBodyTop as the Y anchor for bucket body inside the Stack
+        const double bucketBodyTop =
+            200.0; // vertical center within the 540h box (increased from 160)
+        const double bucketImgWidth = 352.0; // lg:max-w-[22rem]
+        const double bucketRingWidth = 416.0; // lg:max-w-[26rem]
 
         return SizedBox(
-          height: screenHeight - 80, // full viewport minus approx header
+          height: screenHeight - 80,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Left column – text, vertically centered by Row
               Flexible(
                 flex: 5,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: _HeroText(isWide: true),
+                child: SizedBox(
+                  height: screenHeight - 80,
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16, bottom: 72),
+                      child: _HeroText(isWide: true),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 40),
-              // Right column – bucket + floating cards + rocket
+              const SizedBox(width: 90),
               SizedBox(
                 width: bucketWidth,
-                height: 540,
+                height: 600,
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    // Rocket (parallax)
+                    // ── Rocket (parallax) ──────────────────────────────────
                     Positioned(
-                      top: 300 + rocketY,
-                      left: 270 + rocketX,
+                      top: 140 + rocketY,
+                      right: -60 + rocketX,
                       child: const _RocketWidget(),
                     ),
-                    // Startup card – sticks out above bucket mouth
+
+                    // ── Ring handle (top: bucketBodyTop - 23, left: 0) ─────
+                    Positioned(
+                      top: bucketBodyTop - 23,
+                      left: 0,
+                      child: Image.asset(
+                        'assets/images/ringhandle.png',
+                        width: bucketImgWidth,
+                      ),
+                    ),
+
+                    // ── Startup card: left-24 → left:96, -top-40 → top:-160 ─
                     Positioned(
                       top: bucketBodyTop - 160,
                       left: 96,
@@ -207,9 +228,11 @@ class _WideHero extends StatelessWidget {
                         cardColor: AppColors.cardStartup,
                         shadowColor: const Color(0xFFCFA9B1),
                         onTap: () {},
+                        width: 176,
                       ),
                     ),
-                    // About me card
+
+                    // ── About me card: left:10, -top-25 → top:-100 ─────────
                     Positioned(
                       top: bucketBodyTop - 100,
                       left: 10,
@@ -220,9 +243,11 @@ class _WideHero extends StatelessWidget {
                         cardColor: AppColors.cardAbout,
                         shadowColor: const Color(0xFFCCB57E),
                         onTap: () => GoRouter.of(context).go('/about'),
+                        width: 176,
                       ),
                     ),
-                    // Works card
+
+                    // ── Works card: left-38 → left:152, -top-20 → top:-80 ──
                     Positioned(
                       top: bucketBodyTop - 80,
                       left: 152,
@@ -233,30 +258,27 @@ class _WideHero extends StatelessWidget {
                         cardColor: AppColors.cardWork,
                         shadowColor: const Color(0xFFB0AFAE),
                         onTap: () => GoRouter.of(context).go('/work'),
+                        width: 176,
                       ),
                     ),
-                    // Ring handle (arc above bucket)
+
+                    // ── Bucket body: top:bucketBodyTop, left:0 ─────────────
                     Positioned(
-                      top: bucketBodyTop - 23,
+                      top: bucketBodyTop,
                       left: 0,
                       child: Image.asset(
-                        'assets/images/ringhandle.png',
-                        width: 256,
+                        'assets/images/bucket.webp',
+                        width: bucketImgWidth,
                       ),
                     ),
-                    // Bucket body
+
+                    // ── Bucket ring: right:2, top:bucketBodyTop ────────────
                     Positioned(
                       top: bucketBodyTop,
                       left: 0,
-                      child: Image.asset('assets/images/bucket.webp', width: 256),
-                    ),
-                    // Bucket ring overlay
-                    Positioned(
-                      right: -60,
-                      top: bucketBodyTop,
                       child: Image.asset(
                         'assets/images/bucketring.webp',
-                        width: 320,
+                        width: bucketRingWidth,
                       ),
                     ),
                   ],
@@ -301,7 +323,7 @@ class _NarrowHero extends StatelessWidget {
               ),
               // Floating cards
               Positioned(
-                top: -132,
+                top: 20,
                 left: 72,
                 child: _FloatingCard(
                   image: 'assets/images/startupdecoration.webp',
@@ -314,7 +336,7 @@ class _NarrowHero extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: -80,
+                top: 80,
                 left: 10,
                 child: _FloatingCard(
                   image: 'assets/images/aboutme.webp',
@@ -327,7 +349,7 @@ class _NarrowHero extends StatelessWidget {
                 ),
               ),
               Positioned(
-                top: -56,
+                top: 140,
                 left: 104,
                 child: _FloatingCard(
                   image: 'assets/images/workimage.webp',

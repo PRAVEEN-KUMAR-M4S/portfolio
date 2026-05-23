@@ -71,7 +71,6 @@ class _PortfolioShell extends StatelessWidget {
           children: [
             const AppHeader(),
             Expanded(child: child),
-            const AppFooter(),
           ],
         ),
       ),
