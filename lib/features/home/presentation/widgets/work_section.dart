@@ -75,15 +75,19 @@ class WorkSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Title
-          SizedBox(
-            width: double.infinity,
-            child: Text(
-              'Work',
-              style: GoogleFonts.nanumPenScript(
-                fontSize: isWide ? 96 : 60,
-                color: AppColors.primary,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Work',
+                style: GoogleFonts.nanumPenScript(
+                  fontSize: isWide ? 96 : 60,
+                  color: AppColors.primary,
+                ),
               ),
-            ),
+              const SizedBox(width: 10),
+              SvgPicture.asset('assets/images/underline.svg'),
+            ],
           ),
           const SizedBox(height: 32),
           // Projects
@@ -119,13 +123,8 @@ class _ProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageWidget = ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: isWide ? 650 : 300,
-      ),
-      child: SvgPicture.asset(
-        project.image,
-        fit: BoxFit.fill,
-      ),
+      constraints: BoxConstraints(maxWidth: isWide ? 650 : 300),
+      child: SvgPicture.asset(project.image, fit: BoxFit.fill),
     );
 
     final textWidget = SizedBox(
@@ -166,7 +165,7 @@ class _ProjectCard extends StatelessWidget {
             onTap: () => onLaunch(project.projectUrl),
             isWide: isWide,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           _ProjectButton(
             label: 'Github',
             icon: 'assets/images/github.svg',
@@ -225,6 +224,7 @@ class _ProjectButtonState extends State<_ProjectButton> {
             width: 330,
             height: 40,
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
                 Image.asset(
                   'assets/images/button.webp',

@@ -1,0 +1,14 @@
+  <svg
+              className='absolute lg:max-w-[100px] -top-[160px] left-[260px] '
+              xmlns='http://www.w3.org/2000/svg'
+              viewBox='0 0 96 104'
+            >
+              <path
+                d='M 24.184 2.678 C 18.875 18.329 7.248 51.68 3.211 59.871 M 36.656 74.899 C 46.313 64.225 67.531 41.925 75.144 38.112 M 53.314 100.678 C 61.175 98.565 80.16 93.94 93.211 92.344'
+                fill='transparent'
+                strokeWidth='5'
+                stroke='rgba(153, 153, 153, 0.8)'
+                strokeLinecap='round'
+                strokeMiterlimit='10'
+              ></path>
+            </svg>

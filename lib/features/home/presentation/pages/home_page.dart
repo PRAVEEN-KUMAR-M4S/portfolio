@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,9 @@ class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
 
   double _scrollProgress = 0;
+  double _scrollVelocity = 0;
+  double _lastScrollPixels = 0;
+  DateTime _lastScrollTime = DateTime.now();
 
   @override
   void initState() {
@@ -32,6 +36,14 @@ class _HomePageState extends State<HomePage> {
     final maxScroll = _scrollController.position.maxScrollExtent;
     final current = _scrollController.position.pixels;
     if (maxScroll <= 0) return;
+
+    final now = DateTime.now();
+    final dt = now.difference(_lastScrollTime).inMilliseconds / 1000.0;
+    if (dt > 0) {
+      _scrollVelocity = (current - _lastScrollPixels) / dt;
+    }
+    _lastScrollPixels = current;
+    _lastScrollTime = now;
 
     setState(() {
       _scrollProgress = (current / maxScroll).clamp(0.0, 1.0);
@@ -49,9 +61,17 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => SkillsAnimationCubit(),
-      child: _HomePageContent(
-        scrollController: _scrollController,
-        scrollProgress: _scrollProgress,
+      child: Stack(
+        children: [
+          _HomePageContent(
+            scrollController: _scrollController,
+            scrollProgress: _scrollProgress,
+          ),
+          _FixedRocket(
+            scrollProgress: _scrollProgress,
+            scrollVelocity: _scrollVelocity,
+          ),
+        ],
       ),
     );
   }
@@ -134,11 +154,7 @@ class _HeroSection extends StatelessWidget {
         bottom: isWide ? 0 : 40,
       ),
       child: isWide
-          ? _WideHero(
-              rocketY: rocketY,
-              rocketX: rocketXFactor,
-              scrollProgress: scrollProgress,
-            )
+          ? const _WideHero()
           : _NarrowHero(
               rocketY: rocketY,
               rocketX: rocketXFactor,
@@ -149,15 +165,7 @@ class _HeroSection extends StatelessWidget {
 }
 
 class _WideHero extends StatelessWidget {
-  const _WideHero({
-    required this.rocketY,
-    required this.rocketX,
-    required this.scrollProgress,
-  });
-
-  final double rocketY;
-  final double rocketX;
-  final double scrollProgress;
+  const _WideHero();
 
   @override
   Widget build(BuildContext context) {
@@ -177,8 +185,8 @@ class _WideHero extends StatelessWidget {
         return SizedBox(
           height: screenHeight - 80,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
                 flex: 5,
@@ -200,13 +208,6 @@ class _WideHero extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    // ── Rocket (parallax) ──────────────────────────────────
-                    Positioned(
-                      top: 140 + rocketY,
-                      right: -60 + rocketX,
-                      child: const _RocketWidget(),
-                    ),
-
                     // ── Ring handle (top: bucketBodyTop - 23, left: 0) ─────
                     Positioned(
                       top: bucketBodyTop - 23,
@@ -515,5 +516,105 @@ class _RocketWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset('assets/images/rocket.svg', width: 64, height: 64);
+  }
+}
+
+class _FixedRocket extends StatefulWidget {
+  const _FixedRocket({
+    required this.scrollProgress,
+    required this.scrollVelocity,
+  });
+  final double scrollProgress;
+  final double scrollVelocity;
+
+  @override
+  State<_FixedRocket> createState() => _FixedRocketState();
+}
+
+class _FixedRocketState extends State<_FixedRocket>
+    with SingleTickerProviderStateMixin {
+  double _displayX = -50;
+  double _displayY = 0;
+  double _displayRotate = 0;
+
+  double _velX = 0;
+  double _velY = 0;
+  double _velR = 0;
+
+  late final Ticker _ticker;
+  Duration? _lastTime;
+
+  static const double _stiffnessXY = 100;
+  static const double _dampingXY = 30;
+  static const double _stiffnessR = 400;
+  static const double _dampingR = 30;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = createTicker(_onTick)..start();
+  }
+
+  void _onTick(Duration elapsed) {
+    if (_lastTime == null) {
+      _lastTime = elapsed;
+      return;
+    }
+    final dt = (elapsed - _lastTime!).inMilliseconds / 1000.0;
+    _lastTime = elapsed;
+    if (dt <= 0 || dt > 0.1) return;
+
+    final targetY = widget.scrollProgress * 250;
+    final targetX = _lerpX(widget.scrollProgress);
+    final targetRotate = (widget.scrollVelocity / 1000.0 * 25).clamp(
+      -25.0,
+      25.0,
+    );
+
+    _velX += (-_stiffnessXY * (_displayX - targetX) - _dampingXY * _velX) * dt;
+    _velY += (-_stiffnessXY * (_displayY - targetY) - _dampingXY * _velY) * dt;
+    _velR +=
+        (-_stiffnessR * (_displayRotate - targetRotate) - _dampingR * _velR) *
+        dt;
+
+    setState(() {
+      _displayX += _velX * dt;
+      _displayY += _velY * dt;
+      _displayRotate += _velR * dt;
+    });
+  }
+
+  double _lerpX(double t) {
+    if (t <= 0.5) return -50 + (250 - (-50)) * (t / 0.5);
+    return 250 + (-50 - 250) * ((t - 0.5) / 0.5);
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWide = screenWidth >= 1024;
+    if (!isWide) return const SizedBox.shrink();
+
+    const double anchorTop = 160.0;
+    const double anchorLeft = 350.0;
+
+    return Positioned(
+      top: anchorTop + _displayY,
+      left: anchorLeft + _displayX,
+      child: Transform.rotate(
+        angle: _displayRotate * math.pi / 180,
+        child: SvgPicture.asset(
+          'assets/images/rocket.svg',
+          width: 64,
+          height: 64,
+        ),
+      ),
+    );
   }
 }
