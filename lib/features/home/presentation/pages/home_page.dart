@@ -4,7 +4,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:personal_portfolio_paper_flutter/shared/widgets/app_footer.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../state/skills_animation_cubit.dart';
@@ -96,6 +95,7 @@ class _HomePageContent extends StatelessWidget {
           const Divider(height: 2, thickness: 2, color: Color(0x44CCCCCC)),
           const WorkSection(),
           SkillsSection(scrollController: scrollController),
+          const SizedBox(height: 80),
           const Divider(height: 2, thickness: 2, color: Color(0x44CCCCCC)),
           // Vertical line
           Image.asset(
@@ -106,7 +106,7 @@ class _HomePageContent extends StatelessWidget {
           ),
           // Footer bucket
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.only(left: 0),
               child: SizedBox(
@@ -119,11 +119,11 @@ class _HomePageContent extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 120, bottom: 56),
+            padding: const EdgeInsets.only(top: 50, bottom: 56),
             child: Text(
               'a bucket full of ideas waiting to spill',
               textAlign: TextAlign.center,
-              style: GoogleFonts.dmSans(fontSize: 18, color: AppColors.primary),
+              style: const TextStyle(fontFamily: 'DM Sans', fontSize: 18, color: AppColors.primary),
             ),
           ),
           const AppFooter(),
@@ -399,7 +399,8 @@ class _HeroText extends StatelessWidget {
       children: [
         Text(
           'hello, I am',
-          style: GoogleFonts.dmSans(
+          style: TextStyle(
+            fontFamily: 'DM Sans',
             fontSize: isWide ? 22 : 16,
             fontWeight: FontWeight.w200,
             color: AppColors.textColor,
@@ -408,7 +409,8 @@ class _HeroText extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           'Shahil',
-          style: GoogleFonts.nanumPenScript(
+          style: TextStyle(
+            fontFamily: 'Nanum Pen Script',
             fontSize: isWide ? 120 : 72,
             color: AppColors.primary,
           ),
@@ -418,7 +420,8 @@ class _HeroText extends StatelessWidget {
           width: isWide ? 500 : double.infinity,
           child: Text(
             'a builder who loves to build and create amazing products that makes a difference.',
-            style: GoogleFonts.dmSans(
+            style: TextStyle(
+              fontFamily: 'DM Sans',
               fontSize: isWide ? 22 : 16,
               fontWeight: isWide ? FontWeight.w300 : FontWeight.w200,
               color: const Color(0xFF484848),
@@ -493,7 +496,8 @@ class _FloatingCardState extends State<_FloatingCard> {
                       ),
                       child: Text(
                         widget.label,
-                        style: GoogleFonts.nanumPenScript(
+                        style: TextStyle(
+                          fontFamily: 'Nanum Pen Script',
                           fontSize: 18,
                           color: const Color(0xFF696969),
                         ),

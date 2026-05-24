@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/theme/app_colors.dart';
 
 class AboutPage extends StatelessWidget {
@@ -41,17 +40,19 @@ class AboutPage extends StatelessWidget {
                 const SizedBox(height: 40),
                 Text(
                   'hello i am shahil- a software developer',
-                  style: GoogleFonts.dmSans(
+                  style: const TextStyle(
+                    fontFamily: 'DM Sans',
                     fontSize: 14,
-                    color: const Color(0xFF8E8570),
+                    color: Color(0xFF8E8570),
                   ),
                 ),
                 const SizedBox(height: 20),
                 RichText(
                   text: TextSpan(
-                    style: GoogleFonts.dmSans(
+                    style: const TextStyle(
+                      fontFamily: 'DM Sans',
                       fontSize: 12,
-                      color: const Color(0xFF8E8570),
+                      color: Color(0xFF8E8570),
                       height: 1.7,
                     ),
                     children: const [

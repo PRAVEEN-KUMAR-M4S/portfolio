@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../state/navigation_cubit.dart';
 import '../../app/theme/app_colors.dart';
 
@@ -26,7 +25,8 @@ class AppHeader extends StatelessWidget {
                   onTap: () => context.go('/'),
                   child: Text(
                     'Shahil.co',
-                    style: GoogleFonts.nanumPenScript(
+                    style: const TextStyle(
+                      fontFamily: 'Nanum Pen Script',
                       fontSize: 32,
                       color: AppColors.secondary,
                     ),
@@ -99,7 +99,8 @@ class _NavLinkState extends State<_NavLink> {
         },
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 150),
-          style: GoogleFonts.nanumPenScript(
+          style: TextStyle(
+            fontFamily: 'Nanum Pen Script',
             fontSize: 28,
             color: (isActive || _hovered)
                 ? AppColors.primary

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../app/theme/app_colors.dart';
 
 class AppFooter extends StatelessWidget {
@@ -19,7 +18,8 @@ class AppFooter extends StatelessWidget {
         children: [
           Text(
             'Made with love :)',
-            style: GoogleFonts.nanumPenScript(
+            style: const TextStyle(
+              fontFamily: 'Nanum Pen Script',
               fontSize: 20,
               color: AppColors.primary,
             ),

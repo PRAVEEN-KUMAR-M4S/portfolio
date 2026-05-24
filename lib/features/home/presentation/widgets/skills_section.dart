@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../state/skills_animation_cubit.dart';
 
@@ -158,7 +157,7 @@ class _SkillsSectionState extends State<SkillsSection> {
         return Container(
           key: _sectionKey,
           width: double.infinity,
-          constraints: BoxConstraints(minHeight: isWide ? 1120 : 600),
+          constraints: BoxConstraints(minHeight: isWide ? 1400 : 600),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -203,7 +202,8 @@ class _SkillsSectionState extends State<SkillsSection> {
                                 children: [
                                   Text(
                                     'Skills',
-                                    style: GoogleFonts.nanumPenScript(
+                                    style: TextStyle(
+                                      fontFamily: 'Nanum Pen Script',
                                       fontSize: isWide ? 96 : 60,
                                       color: const Color(0xFF374151),
                                     ),
@@ -218,7 +218,8 @@ class _SkillsSectionState extends State<SkillsSection> {
                                 width: isWide ? 320 : 200,
                                 child: Text(
                                   'skills mean nothing until they build something real.',
-                                  style: GoogleFonts.dmSans(
+                                  style: TextStyle(
+                                    fontFamily: 'DM Sans',
                                     fontSize: isWide ? 22 : 16,
                                     color: const Color(0xFF374151),
                                     height: 1.4,
@@ -385,7 +386,8 @@ class _SkillCard extends StatelessWidget {
             child: Text(
               name,
               textAlign: TextAlign.center,
-              style: GoogleFonts.nanumPenScript(
+              style: const TextStyle(
+                fontFamily: 'Nanum Pen Script',
                 fontSize: 20,
                 color: AppColors.primary,
               ),

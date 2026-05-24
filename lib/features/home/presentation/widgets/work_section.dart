@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/theme/app_colors.dart';
 
@@ -80,7 +79,8 @@ class WorkSection extends StatelessWidget {
             children: [
               Text(
                 'Work',
-                style: GoogleFonts.nanumPenScript(
+                style: TextStyle(
+                  fontFamily: 'Nanum Pen Script',
                   fontSize: isWide ? 96 : 60,
                   color: AppColors.primary,
                 ),
@@ -134,7 +134,8 @@ class _ProjectCard extends StatelessWidget {
         children: [
           Text(
             project.category,
-            style: GoogleFonts.dmSans(
+            style: const TextStyle(
+              fontFamily: 'DM Sans',
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.textColor,
@@ -143,7 +144,8 @@ class _ProjectCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             project.title,
-            style: GoogleFonts.dmSans(
+            style: const TextStyle(
+              fontFamily: 'DM Sans',
               fontSize: 18,
               fontWeight: FontWeight.w500,
               color: AppColors.primary,
@@ -152,7 +154,8 @@ class _ProjectCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             project.description,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(
+              fontFamily: 'DM Sans',
               fontSize: isWide ? 16 : 14,
               fontWeight: FontWeight.w500,
               color: AppColors.textColor,
@@ -237,7 +240,8 @@ class _ProjectButtonState extends State<_ProjectButton> {
                   top: widget.isWide ? 4 : 8,
                   child: Text(
                     widget.label,
-                    style: GoogleFonts.nanumPenScript(
+                    style: TextStyle(
+                      fontFamily: 'Nanum Pen Script',
                       fontSize: widget.isWide ? 22 : 16,
                       color: AppColors.textColor,
                     ),
