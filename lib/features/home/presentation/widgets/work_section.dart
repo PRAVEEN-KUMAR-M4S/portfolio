@@ -76,9 +76,13 @@ class _ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double maxW = isWide ? 650 : 300;
+
     final imageWidget = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: isWide ? 650 : 300),
-      child: SvgPicture.asset(project.image, fit: BoxFit.fill),
+      constraints: BoxConstraints(maxWidth: maxW),
+      child: project.images.length == 1
+          ? _buildSingleImage(project.images[0])
+          : _StackedImages(images: project.images, maxWidth: maxW),
     );
 
     final textWidget = SizedBox(
@@ -213,6 +217,78 @@ class _ProjectButtonState extends State<_ProjectButton> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+Widget _buildSingleImage(String path) {
+  if (path.endsWith('.svg')) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SvgPicture.asset(path, width: 480, height: 320, fit: BoxFit.fill),
+    );
+  }
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(12),
+    child: Image.asset(path, width: 480, height: 320, fit: BoxFit.cover),
+  );
+}
+
+class _StackedImages extends StatelessWidget {
+  const _StackedImages({required this.images, required this.maxWidth});
+  final List<String> images;
+  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final double imgW = maxWidth * 0.80;
+    final double imgH = imgW * 0.75;
+
+    return SizedBox(
+      width: maxWidth,
+      height: imgH,
+      child: Stack(
+        children: [
+          // Back image (images[0]) — top-left, behind
+          Positioned(
+            left: 0,
+            top: 0,
+            child: Container(
+              width: imgW / 1.1,
+              height: imgH / 1.5,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFFCCCCCC), width: 1.5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: _buildSingleImage(images[0]),
+              ),
+            ),
+          ),
+          // Front image (images[1]) — bottom-right, on top
+          Positioned(
+            right: 0,
+            bottom: 60,
+            child: Container(
+              width: imgW / 1.8,
+              height: imgH / 2.3,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFFCCCCCC), width: 1.5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: _buildSingleImage(images[1]),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

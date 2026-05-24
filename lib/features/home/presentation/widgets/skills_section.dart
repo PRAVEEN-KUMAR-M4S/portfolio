@@ -54,7 +54,8 @@ class _SkillsSectionState extends State<SkillsSection> {
     if (!mounted) return;
     setState(() {
       _sectionProgress = progress;
-      final lastEnd = 0.2 + 0.2 + (PortfolioService.info.skills.length - 1) * 0.05;
+      final lastEnd =
+          0.2 + 0.2 + (PortfolioService.info.skills.length - 1) * 0.05;
       if (progress >= lastEnd && !_animationDone) {
         _animationDone = true;
         context.read<SkillsAnimationCubit>().markDone();
@@ -81,7 +82,7 @@ class _SkillsSectionState extends State<SkillsSection> {
   ///
   /// Bucket sits at right side of content, x ≈ contentWidth - 176 (half of 352)
   (double, double, double) _itemTransform(int index, double sectionWidth) {
-    const double hPad = 112.0;
+    const double hPad = 100.0;
     final double contentWidth = sectionWidth - 2 * hPad;
 
     // Grid geometry
@@ -100,9 +101,15 @@ class _SkillsSectionState extends State<SkillsSection> {
 
     if (_animationDone) return (finalX, finalY, 0);
 
-    // Bucket mouth position in Stack-local coords
-    // Bucket is at the right of the content row, width 352, so its left edge:
-    final double bucketLeft = hPad + contentWidth - 352.0;
+    // Bucket mouth position in Stack-local coords.
+    // The header Row is full-width with mainAxisAlignment.center:
+    //   [text col ≈360px] [gap 100px] [bucket 352px]
+    // So bucket left = (sectionWidth - rowChildrenWidth) / 2 + textColWidth + 100
+    const double textColWidth = 360.0;
+    final double bucketLeft =
+        (sectionWidth - (textColWidth + 100.0 + 352.0)) / 2 +
+        textColWidth +
+        100.0;
     // Bucket mouth center-x ≈ bucketLeft + 176
     final double bucketMouthX = bucketLeft + 176.0 - _cardWidth / 2;
     // Bucket mouth y ≈ vertical center of 700px header (350) - some offset for mouth
@@ -156,142 +163,144 @@ class _SkillsSectionState extends State<SkillsSection> {
               // ── Background — clipped to this section ──────────────────
               Positioned.fill(
                 child: ClipRect(
-                  child: Opacity(
-                    opacity: 0.3,
-                    child: Image.asset(
-                      'assets/images/boxes.webp',
-                      repeat: ImageRepeat.repeat,
-                      fit: BoxFit.none,
-                      alignment: Alignment.topLeft,
-                      filterQuality: FilterQuality.low,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: const AssetImage('assets/images/boxes.webp'),
+
+                        alignment: Alignment.center,
+                        scale: 1,
+                        opacity: 0.3,
+                        colorFilter: ColorFilter.matrix([
+                          // brightness(0.3) × contrast(0.5): 0.15×val + 64
+                          0.15, 0, 0, 0, 64,
+                          0, 0.15, 0, 0, 64,
+                          0, 0, 0.15, 0, 64,
+                          0, 0, 0, 1, 0,
+                        ]),
+                        filterQuality: FilterQuality.low,
+                      ),
                     ),
                   ),
                 ),
               ),
 
               // ── Header row ────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isWide ? 112.0 : 16.0,
-                  vertical: 16.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: isWide ? 700 : 350,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Title + subtitle
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Skills',
-                                    style: TextStyle(
-                                      fontFamily: 'Nanum Pen Script',
-                                      fontSize: isWide ? 96 : 60,
-                                      color: const Color(0xFF374151),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  SvgPicture.asset(
-                                    'assets/images/underline.svg',
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                width: isWide ? 320 : 200,
-                                child: Text(
-                                  PortfolioService.info.skillsSubtitle,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: isWide ? 700 : 350,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Title + subtitle
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Skills',
                                   style: TextStyle(
-                                    fontFamily: 'DM Sans',
-                                    fontSize: isWide ? 22 : 16,
+                                    fontFamily: 'Nanum Pen Script',
+                                    fontSize: isWide ? 96 : 60,
                                     color: const Color(0xFF374151),
-                                    height: 1.4,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          // Animated bucket
-                          if (isWide)
-                            Transform.rotate(
-                              angle: _bucketRotation,
-                              alignment: Alignment.bottomCenter,
-                              child: SizedBox(
-                                width: 352,
-                                child: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    // ── Spark/shine lines: -top-[160px] left-[260px] ──
-                                    Positioned(
-                                      top: -160,
-                                      left: 260,
-                                      child: SizedBox(
-                                        width: 100,
-                                        height: 108,
-                                        child: CustomPaint(
-                                          painter: _SparkPainter(),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // ── Ring handle ──────────────────────────────────
-                                    Image.asset(
-                                      'assets/images/ringhandle.png',
-                                      width: 352,
-                                    ),
-
-                                    // ── Bucket body ──────────────────────────────────
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 12),
-                                      child: Image.asset(
-                                        'assets/images/bucket.webp',
-                                        width: 352,
-                                      ),
-                                    ),
-
-                                    // ── Bucket bottom decoration: max-w-24 = 96px ─────
-                                    Positioned(
-                                      bottom: 0,
-                                      left: 0,
-                                      child: Image.asset(
-                                        'assets/images/bucketbottom.webp',
-                                        width: 96,
-                                      ),
-                                    ),
-
-                                    // ── Squiggle: bottom-8(32px) -left-10(-40px) ──────
-                                    Positioned(
-                                      bottom: 32,
-                                      left: -40,
-                                      child: SizedBox(
-                                        width: 48,
-                                        height: 30,
-                                        child: CustomPaint(
-                                          painter: _SquigglePainter(),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(width: 10),
+                                SvgPicture.asset('assets/images/underline.svg'),
+                              ],
+                            ),
+                            SizedBox(
+                              width: isWide ? 320 : 200,
+                              child: Text(
+                                PortfolioService.info.skillsSubtitle,
+                                style: TextStyle(
+                                  fontFamily: 'DM Sans',
+                                  fontSize: isWide ? 22 : 16,
+                                  color: const Color(0xFF374151),
+                                  height: 1.4,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
-                    ),
+                          ],
+                        ),
+                        SizedBox(width: 100),
 
-                    if (!isWide) _buildSimpleGrid(),
-                  ],
-                ),
+                        // Animated bucket
+                        if (isWide)
+                          Transform.rotate(
+                            angle: _bucketRotation,
+                            alignment: Alignment.bottomCenter,
+                            child: SizedBox(
+                              width: 352,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  // ── Spark/shine lines: -top-[160px] left-[260px] ──
+                                  Positioned(
+                                    top: -160,
+                                    left: 260,
+                                    child: SizedBox(
+                                      width: 100,
+                                      height: 108,
+                                      child: CustomPaint(
+                                        painter: _SparkPainter(),
+                                      ),
+                                    ),
+                                  ),
+
+                                  // ── Ring handle ──────────────────────────────────
+                                  Image.asset(
+                                    'assets/images/ringhandle.png',
+                                    width: 352,
+                                  ),
+
+                                  // ── Bucket body ──────────────────────────────────
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12),
+                                    child: Image.asset(
+                                      'assets/images/bucket.webp',
+                                      width: 352,
+                                    ),
+                                  ),
+
+                                  // ── Bucket bottom decoration: max-w-24 = 96px ─────
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    child: Image.asset(
+                                      'assets/images/bucketbottom.webp',
+                                      width: 96,
+                                    ),
+                                  ),
+
+                                  // ── Squiggle: bottom-8(32px) -left-10(-40px) ──────
+                                  Positioned(
+                                    bottom: 32,
+                                    left: -40,
+                                    child: SizedBox(
+                                      width: 48,
+                                      height: 30,
+                                      child: CustomPaint(
+                                        painter: _SquigglePainter(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  if (!isWide) _buildSimpleGrid(),
+                ],
               ),
 
               // ── Animated skill cards ──────────────────────────────────
@@ -306,10 +315,7 @@ class _SkillsSectionState extends State<SkillsSection> {
                     top: y,
                     child: Transform.rotate(
                       angle: rot,
-                      child: _SkillCard(
-                        name: skill.name,
-                        icon: skill.icon,
-                      ),
+                      child: _SkillCard(name: skill.name, icon: skill.icon),
                     ),
                   );
                 }),

@@ -85,7 +85,7 @@ class ProjectInfo {
     required this.category,
     required this.title,
     required this.description,
-    required this.image,
+    required this.images,
     required this.projectUrl,
     required this.githubUrl,
   });
@@ -93,7 +93,7 @@ class ProjectInfo {
   final String category;
   final String title;
   final String description;
-  final String image;
+  final List<String> images;
   final String projectUrl;
   final String githubUrl;
 
@@ -101,7 +101,7 @@ class ProjectInfo {
         category: json['category'] as String,
         title: json['title'] as String,
         description: json['description'] as String,
-        image: json['image'] as String,
+        images: (json['images'] as List<dynamic>).map((e) => e as String).toList(),
         projectUrl: json['projectUrl'] as String,
         githubUrl: json['githubUrl'] as String,
       );

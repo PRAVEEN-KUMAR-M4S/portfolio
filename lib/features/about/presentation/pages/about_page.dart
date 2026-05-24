@@ -36,6 +36,10 @@ class AboutPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: AppColors.secondary.withOpacity(0.2),
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/praveen.jpg'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 40),

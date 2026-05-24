@@ -125,7 +125,11 @@ class _HomePageContent extends StatelessWidget {
             child: Text(
               PortfolioService.info.bucketQuote,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontFamily: 'DM Sans', fontSize: 18, color: AppColors.primary),
+              style: const TextStyle(
+                fontFamily: 'DM Sans',
+                fontSize: 18,
+                color: AppColors.primary,
+              ),
             ),
           ),
           const AppFooter(),
@@ -195,72 +199,72 @@ class _WideHero extends StatelessWidget {
                 child: SizedBox(
                   width: bucketWidth,
                   height: 600,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    // ── Ring handle (top: bucketBodyTop - 23, left: 0) ─────
-                    Positioned(
-                      top: bucketBodyTop - 23,
-                      left: 0,
-                      child: Image.asset(
-                        'assets/images/ringhandle.png',
-                        width: bucketImgWidth,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // ── Ring handle (top: bucketBodyTop - 23, left: 0) ─────
+                      Positioned(
+                        top: bucketBodyTop - 23,
+                        left: 0,
+                        child: Image.asset(
+                          'assets/images/ringhandle.png',
+                          width: bucketImgWidth,
+                        ),
                       ),
-                    ),
 
-                    // ── About me card: left:10, -top-25 → top:-100 ─────────
-                    Positioned(
-                      top: bucketBodyTop - 100,
-                      left: 10,
-                      child: _FloatingCard(
-                        image: 'assets/images/aboutme.webp',
-                        label: 'about me',
-                        rotation: -6,
-                        cardColor: AppColors.cardAbout,
-                        shadowColor: const Color(0xFFCCB57E),
-                        onTap: () => GoRouter.of(context).go('/about'),
-                        width: 176,
+                      // ── About me card: left:10, -top-25 → top:-100 ─────────
+                      Positioned(
+                        top: bucketBodyTop - 100,
+                        left: 10,
+                        child: _FloatingCard(
+                          image: 'assets/images/aboutme.webp',
+                          label: 'about me',
+                          rotation: -6,
+                          cardColor: AppColors.cardAbout,
+                          shadowColor: const Color(0xFFCCB57E),
+                          onTap: () => GoRouter.of(context).go('/about'),
+                          width: 176,
+                        ),
                       ),
-                    ),
 
-                    // ── Works card: left-38 → left:152, -top-20 → top:-80 ──
-                    Positioned(
-                      top: bucketBodyTop - 80,
-                      left: 152,
-                      child: _FloatingCard(
-                        image: 'assets/images/workimage.webp',
-                        label: 'works',
-                        rotation: 7,
-                        cardColor: AppColors.cardWork,
-                        shadowColor: const Color(0xFFB0AFAE),
-                        onTap: () => GoRouter.of(context).go('/work'),
-                        width: 176,
+                      // ── Works card: left-38 → left:152, -top-20 → top:-80 ──
+                      Positioned(
+                        top: bucketBodyTop - 80,
+                        left: 152,
+                        child: _FloatingCard(
+                          image: 'assets/images/workimage.webp',
+                          label: 'works',
+                          rotation: 7,
+                          cardColor: AppColors.cardWork,
+                          shadowColor: const Color(0xFFB0AFAE),
+                          onTap: () => GoRouter.of(context).go('/work'),
+                          width: 176,
+                        ),
                       ),
-                    ),
 
-                    // ── Bucket body: top:bucketBodyTop, left:0 ─────────────
-                    Positioned(
-                      top: bucketBodyTop,
-                      left: 0,
-                      child: Image.asset(
-                        'assets/images/bucket.webp',
-                        width: bucketImgWidth,
+                      // ── Bucket body: top:bucketBodyTop, left:0 ─────────────
+                      Positioned(
+                        top: bucketBodyTop,
+                        left: 0,
+                        child: Image.asset(
+                          'assets/images/bucket.webp',
+                          width: bucketImgWidth,
+                        ),
                       ),
-                    ),
 
-                    // ── Bucket ring: right:2, top:bucketBodyTop ────────────
-                    Positioned(
-                      top: bucketBodyTop,
-                      left: 0,
-                      child: Image.asset(
-                        'assets/images/bucketring.webp',
-                        width: bucketRingWidth,
+                      // ── Bucket ring: right:2, top:bucketBodyTop ────────────
+                      Positioned(
+                        top: bucketBodyTop,
+                        left: 0,
+                        child: Image.asset(
+                          'assets/images/bucketring.webp',
+                          width: bucketRingWidth,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
             ],
           ),
         );
