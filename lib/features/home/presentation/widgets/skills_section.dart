@@ -3,16 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/services/portfolio_service.dart';
 import '../../state/skills_animation_cubit.dart';
-
-const _skills = [
-  {'name': 'React JS', 'icon': 'assets/images/react.svg'},
-  {'name': 'Postgres Sql', 'icon': 'assets/images/postgres.svg'},
-  {'name': 'Tailwind Css', 'icon': 'assets/images/tailwindcss.svg'},
-  {'name': 'Github', 'icon': 'assets/images/github.svg'},
-  {'name': 'Node Js', 'icon': 'assets/images/node.svg'},
-  {'name': 'Angular', 'icon': 'assets/images/angular.svg'},
-];
 
 const double _cardWidth = 200.0;
 const double _cardGap = 250.0; // col spacing
@@ -62,7 +54,7 @@ class _SkillsSectionState extends State<SkillsSection> {
     if (!mounted) return;
     setState(() {
       _sectionProgress = progress;
-      final lastEnd = 0.2 + 0.2 + (_skills.length - 1) * 0.05;
+      final lastEnd = 0.2 + 0.2 + (PortfolioService.info.skills.length - 1) * 0.05;
       if (progress >= lastEnd && !_animationDone) {
         _animationDone = true;
         context.read<SkillsAnimationCubit>().markDone();
@@ -217,7 +209,7 @@ class _SkillsSectionState extends State<SkillsSection> {
                               SizedBox(
                                 width: isWide ? 320 : 200,
                                 child: Text(
-                                  'skills mean nothing until they build something real.',
+                                  PortfolioService.info.skillsSubtitle,
                                   style: TextStyle(
                                     fontFamily: 'DM Sans',
                                     fontSize: isWide ? 22 : 16,
@@ -304,7 +296,7 @@ class _SkillsSectionState extends State<SkillsSection> {
 
               // ── Animated skill cards ──────────────────────────────────
               if (isWide)
-                ..._skills.asMap().entries.map((entry) {
+                ...PortfolioService.info.skills.asMap().entries.map((entry) {
                   final index = entry.key;
                   final skill = entry.value;
                   final (x, y, rot) = _itemTransform(index, sectionWidth);
@@ -315,8 +307,8 @@ class _SkillsSectionState extends State<SkillsSection> {
                     child: Transform.rotate(
                       angle: rot,
                       child: _SkillCard(
-                        name: skill['name']!,
-                        icon: skill['icon']!,
+                        name: skill.name,
+                        icon: skill.icon,
                       ),
                     ),
                   );
@@ -334,8 +326,8 @@ class _SkillsSectionState extends State<SkillsSection> {
       child: Wrap(
         spacing: 16,
         runSpacing: 16,
-        children: _skills
-            .map((s) => _SkillCard(name: s['name']!, icon: s['icon']!))
+        children: PortfolioService.info.skills
+            .map((s) => _SkillCard(name: s.name, icon: s.icon))
             .toList(),
       ),
     );

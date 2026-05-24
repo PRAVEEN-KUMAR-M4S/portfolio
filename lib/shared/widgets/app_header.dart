@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/services/portfolio_service.dart';
 import '../state/navigation_cubit.dart';
 import '../../app/theme/app_colors.dart';
 
@@ -24,7 +25,7 @@ class AppHeader extends StatelessWidget {
                 GestureDetector(
                   onTap: () => context.go('/'),
                   child: Text(
-                    'Shahil.co',
+                    PortfolioService.info.siteName,
                     style: const TextStyle(
                       fontFamily: 'Nanum Pen Script',
                       fontSize: 32,
@@ -45,13 +46,6 @@ class AppHeader extends StatelessWidget {
                       route: '/about',
                       currentRoute: currentRoute,
                     ),
-                    const SizedBox(width: 40),
-                    _NavLink(
-                      label: 'startup',
-                      route: 'http://flaro.co',
-                      currentRoute: currentRoute,
-                      isExternal: true,
-                    ),
                   ],
                 ),
               ],
@@ -68,13 +62,11 @@ class _NavLink extends StatefulWidget {
     required this.label,
     required this.route,
     required this.currentRoute,
-    this.isExternal = false,
   });
 
   final String label;
   final String route;
   final String currentRoute;
-  final bool isExternal;
 
   @override
   State<_NavLink> createState() => _NavLinkState();
@@ -85,18 +77,14 @@ class _NavLinkState extends State<_NavLink> {
 
   @override
   Widget build(BuildContext context) {
-    final isActive = !widget.isExternal && widget.currentRoute == widget.route;
+    final isActive = widget.currentRoute == widget.route;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
-        onTap: () {
-          if (!widget.isExternal) {
-            context.go(widget.route);
-          }
-        },
+        onTap: () => context.go(widget.route),
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 150),
           style: TextStyle(

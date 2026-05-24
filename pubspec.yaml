@@ -57,6 +57,7 @@ flutter:
     - assets/images/
     - assets/animations/
     - assets/icons/
+    - assets/data/
 
   fonts:
     - family: DM Sans

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/services/portfolio_service.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -39,7 +40,7 @@ class AboutPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 Text(
-                  'hello i am shahil- a software developer',
+                  PortfolioService.info.about.intro,
                   style: const TextStyle(
                     fontFamily: 'DM Sans',
                     fontSize: 14,
@@ -55,15 +56,14 @@ class AboutPage extends StatelessWidget {
                       color: Color(0xFF8E8570),
                       height: 1.7,
                     ),
-                    children: const [
+                    children: [
                       TextSpan(
-                        text: "i've always loved making things. ",
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                        text: PortfolioService.info.about.highlight,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
-                      TextSpan(text: '\n'),
+                      const TextSpan(text: '\n'),
                       TextSpan(
-                        text:
-                            "at my core, i'm a builder. whether it was crafting paper experiments as a kid, studying interior design in college, running design bucket on the side, or designing digital experiences today. creating things that add real value to people's lives has always brought me joy.",
+                        text: PortfolioService.info.about.bio,
                       ),
                     ],
                   ),

@@ -2,54 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/theme/app_colors.dart';
-
-class WorkProject {
-  const WorkProject({
-    required this.category,
-    required this.title,
-    required this.description,
-    required this.image,
-    required this.projectUrl,
-    required this.githubUrl,
-  });
-
-  final String category;
-  final String title;
-  final String description;
-  final String image;
-  final String projectUrl;
-  final String githubUrl;
-}
-
-const _projects = [
-  WorkProject(
-    category: 'Product',
-    title: 'Flaro AI Malayalam Calling Agent',
-    description:
-        'An AI-powered calling agent that can make calls in Malayalam to schedule appointments, conduct surveys, and provide customer support.',
-    image: 'assets/images/project.svg',
-    projectUrl: 'http://flaro.co',
-    githubUrl: 'https://github.com/shahil-kv/Flaro_Web',
-  ),
-  WorkProject(
-    category: 'Personal Project',
-    title: 'Secure Pass (Personal Password Manager)',
-    description:
-        'A secure password manager that helps users store and manage their passwords safely and conveniently.',
-    image: 'assets/images/project2.svg',
-    projectUrl: 'https://ilocks.web.app/',
-    githubUrl: 'https://github.com/shahil-kv/securePass',
-  ),
-  WorkProject(
-    category: 'Hobby Project',
-    title: 'Pure Vanilla Javascript Illustrator App',
-    description:
-        'A pure vanilla javascript illustrator app that can be used to create illustrations for your next project.',
-    image: 'assets/images/project3.svg',
-    projectUrl: 'https://shahil-kv.github.io/illustractor/',
-    githubUrl: 'https://github.com/shahil-kv/illustractor',
-  ),
-];
+import '../../../../core/models/portfolio_info.dart';
+import '../../../../core/services/portfolio_service.dart';
 
 class WorkSection extends StatelessWidget {
   const WorkSection({super.key});
@@ -92,7 +46,7 @@ class WorkSection extends StatelessWidget {
           const SizedBox(height: 32),
           // Projects
           Column(
-            children: _projects.map((project) {
+            children: PortfolioService.info.projects.map((project) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 56),
                 child: _ProjectCard(
@@ -116,7 +70,7 @@ class _ProjectCard extends StatelessWidget {
     required this.onLaunch,
   });
 
-  final WorkProject project;
+  final ProjectInfo project;
   final bool isWide;
   final Future<void> Function(String) onLaunch;
 

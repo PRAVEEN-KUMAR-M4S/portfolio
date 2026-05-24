@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
+import '../../core/services/portfolio_service.dart';
 
 class AppFooter extends StatelessWidget {
   const AppFooter({super.key});
@@ -17,7 +18,7 @@ class AppFooter extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'Made with love :)',
+            PortfolioService.info.footerText,
             style: const TextStyle(
               fontFamily: 'Nanum Pen Script',
               fontSize: 20,
@@ -26,11 +27,11 @@ class AppFooter extends StatelessWidget {
           ),
           Row(
             children: [
-              _SocialIcon(asset: 'assets/images/instagram.webp', url: ''),
+              _SocialIcon(asset: 'assets/images/instagram.webp', url: PortfolioService.info.social.instagram),
               const SizedBox(width: 8),
-              _SocialIcon(asset: 'assets/images/twitter.webp', url: ''),
+              _SocialIcon(asset: 'assets/images/twitter.webp', url: PortfolioService.info.social.twitter),
               const SizedBox(width: 8),
-              _SocialIcon(asset: 'assets/images/linkedin.webp', url: ''),
+              _SocialIcon(asset: 'assets/images/linkedin.webp', url: PortfolioService.info.social.linkedin),
             ],
           ),
         ],

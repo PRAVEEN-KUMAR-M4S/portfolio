@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/services/portfolio_service.dart';
 import 'package:personal_portfolio_paper_flutter/shared/widgets/app_footer.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../state/skills_animation_cubit.dart';
@@ -61,6 +62,7 @@ class _HomePageState extends State<HomePage> {
     return BlocProvider(
       create: (_) => SkillsAnimationCubit(),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           _HomePageContent(
             scrollController: _scrollController,
@@ -121,7 +123,7 @@ class _HomePageContent extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 50, bottom: 56),
             child: Text(
-              'a bucket full of ideas waiting to spill',
+              PortfolioService.info.bucketQuote,
               textAlign: TextAlign.center,
               style: const TextStyle(fontFamily: 'DM Sans', fontSize: 18, color: AppColors.primary),
             ),
@@ -140,11 +142,6 @@ class _HeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width >= 1024;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // Parallax for rocket: y drifts down, x drifts right and back
-    final rocketY = scrollProgress * 200;
-    final rocketXFactor = math.sin(scrollProgress * math.pi) * 150 - 50;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -153,13 +150,7 @@ class _HeroSection extends StatelessWidget {
         top: isWide ? 0 : 96,
         bottom: isWide ? 0 : 40,
       ),
-      child: isWide
-          ? const _WideHero()
-          : _NarrowHero(
-              rocketY: rocketY,
-              rocketX: rocketXFactor,
-              screenWidth: screenWidth,
-            ),
+      child: isWide ? const _WideHero() : const _NarrowHero(),
     );
   }
 }
@@ -185,26 +176,25 @@ class _WideHero extends StatelessWidget {
         return SizedBox(
           height: screenHeight - 80,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
                 flex: 5,
-                child: SizedBox(
-                  height: screenHeight - 80,
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 16, bottom: 72),
-                      child: _HeroText(isWide: true),
-                    ),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16, bottom: 72),
+                    child: _HeroText(isWide: true),
                   ),
                 ),
               ),
               const SizedBox(width: 90),
-              SizedBox(
-                width: bucketWidth,
-                height: 600,
+              Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: bucketWidth,
+                  height: 600,
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -215,21 +205,6 @@ class _WideHero extends StatelessWidget {
                       child: Image.asset(
                         'assets/images/ringhandle.png',
                         width: bucketImgWidth,
-                      ),
-                    ),
-
-                    // ── Startup card: left-24 → left:96, -top-40 → top:-160 ─
-                    Positioned(
-                      top: bucketBodyTop - 160,
-                      left: 96,
-                      child: _FloatingCard(
-                        image: 'assets/images/startupdecoration.webp',
-                        label: 'Start Up',
-                        rotation: 7,
-                        cardColor: AppColors.cardStartup,
-                        shadowColor: const Color(0xFFCFA9B1),
-                        onTap: () {},
-                        width: 176,
                       ),
                     ),
 
@@ -285,6 +260,7 @@ class _WideHero extends StatelessWidget {
                   ],
                 ),
               ),
+            ),
             ],
           ),
         );
@@ -294,93 +270,83 @@ class _WideHero extends StatelessWidget {
 }
 
 class _NarrowHero extends StatelessWidget {
-  const _NarrowHero({
-    required this.rocketY,
-    required this.rocketX,
-    required this.screenWidth,
-  });
-
-  final double rocketY;
-  final double rocketX;
-  final double screenWidth;
+  const _NarrowHero();
 
   @override
   Widget build(BuildContext context) {
+    const double bucketBodyTop = 144.0;
+    const double bucketImgWidth = 253.0;
+    const double bucketRingWidth = 300.0;
+    const double cardWidth = 127.0;
+
     return Column(
       children: [
         _HeroText(isWide: false),
-        const SizedBox(height: 64),
-        SizedBox(
-          width: double.infinity,
-          height: 400,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Rocket
-              Positioned(
-                top: 0 + rocketY * 0.3,
-                right: 0 + rocketX * 0.3,
-                child: const _RocketWidget(),
-              ),
-              // Floating cards
-              Positioned(
-                top: 20,
-                left: 72,
-                child: _FloatingCard(
-                  image: 'assets/images/startupdecoration.webp',
-                  label: 'Start Up',
-                  rotation: 7,
-                  cardColor: AppColors.cardStartup,
-                  shadowColor: const Color(0xFFCFA9B1),
-                  onTap: () {},
-                  width: 120,
+        const SizedBox(height: 48),
+        Center(
+          child: SizedBox(
+            width: bucketRingWidth,
+            height: 432,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // ── Ring handle ─────────────────────────────
+                Positioned(
+                  top: bucketBodyTop - 17,
+                  left: 0,
+                  child: Image.asset(
+                    'assets/images/ringhandle.png',
+                    width: bucketImgWidth,
+                  ),
                 ),
-              ),
-              Positioned(
-                top: 80,
-                left: 10,
-                child: _FloatingCard(
-                  image: 'assets/images/aboutme.webp',
-                  label: 'about me',
-                  rotation: -6,
-                  cardColor: AppColors.cardAbout,
-                  shadowColor: const Color(0xFFCCB57E),
-                  onTap: () => GoRouter.of(context).go('/about'),
-                  width: 140,
+                // ── About me card ─────────────────────────────
+                Positioned(
+                  top: 72,
+                  left: 7,
+                  child: _FloatingCard(
+                    image: 'assets/images/aboutme.webp',
+                    label: 'about me',
+                    rotation: -6,
+                    cardColor: AppColors.cardAbout,
+                    shadowColor: const Color(0xFFCCB57E),
+                    onTap: () => GoRouter.of(context).go('/about'),
+                    width: cardWidth,
+                  ),
                 ),
-              ),
-              Positioned(
-                top: 140,
-                left: 104,
-                child: _FloatingCard(
-                  image: 'assets/images/workimage.webp',
-                  label: 'works',
-                  rotation: 7,
-                  cardColor: AppColors.cardWork,
-                  shadowColor: const Color(0xFFB0AFAE),
-                  onTap: () => GoRouter.of(context).go('/work'),
-                  width: 130,
+                // ── Works card ────────────────────────────────
+                Positioned(
+                  top: 86,
+                  left: 109,
+                  child: _FloatingCard(
+                    image: 'assets/images/workimage.webp',
+                    label: 'works',
+                    rotation: 7,
+                    cardColor: AppColors.cardWork,
+                    shadowColor: const Color(0xFFB0AFAE),
+                    onTap: () => GoRouter.of(context).go('/work'),
+                    width: cardWidth,
+                  ),
                 ),
-              ),
-              // Ring handle
-              Positioned(
-                top: -23,
-                left: 0,
-                child: Image.asset('assets/images/ringhandle.png', width: 256),
-              ),
-              // Bucket
-              Positioned(
-                top: 0,
-                left: 0,
-                child: Image.asset('assets/images/bucket.webp', width: 256),
-              ),
-              // Bucket ring
-              Positioned(
-                right: 0,
-                top: 0,
-                child: Image.asset('assets/images/bucketring.webp', width: 312),
-              ),
-            ],
+                // ── Bucket body ──────────────────────────────
+                Positioned(
+                  top: bucketBodyTop,
+                  left: 0,
+                  child: Image.asset(
+                    'assets/images/bucket.webp',
+                    width: bucketImgWidth,
+                  ),
+                ),
+                // ── Bucket ring ──────────────────────────────
+                Positioned(
+                  top: bucketBodyTop,
+                  left: 0,
+                  child: Image.asset(
+                    'assets/images/bucketring.webp',
+                    width: bucketRingWidth,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -398,7 +364,7 @@ class _HeroText extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'hello, I am',
+          PortfolioService.info.greeting,
           style: TextStyle(
             fontFamily: 'DM Sans',
             fontSize: isWide ? 22 : 16,
@@ -408,7 +374,7 @@ class _HeroText extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Shahil',
+          PortfolioService.info.name,
           style: TextStyle(
             fontFamily: 'Nanum Pen Script',
             fontSize: isWide ? 120 : 72,
@@ -419,7 +385,7 @@ class _HeroText extends StatelessWidget {
         SizedBox(
           width: isWide ? 500 : double.infinity,
           child: Text(
-            'a builder who loves to build and create amazing products that makes a difference.',
+            PortfolioService.info.tagline,
             style: TextStyle(
               fontFamily: 'DM Sans',
               fontSize: isWide ? 22 : 16,
@@ -514,15 +480,6 @@ class _FloatingCardState extends State<_FloatingCard> {
   }
 }
 
-class _RocketWidget extends StatelessWidget {
-  const _RocketWidget();
-
-  @override
-  Widget build(BuildContext context) {
-    return SvgPicture.asset('assets/images/rocket.svg', width: 64, height: 64);
-  }
-}
-
 class _FixedRocket extends StatefulWidget {
   const _FixedRocket({
     required this.scrollProgress,
@@ -603,10 +560,10 @@ class _FixedRocketState extends State<_FixedRocket>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isWide = screenWidth >= 1024;
-    if (!isWide) return const SizedBox.shrink();
 
-    const double anchorTop = 160.0;
-    const double anchorLeft = 350.0;
+    final double anchorTop = isWide ? 160.0 : 100.0;
+    final double anchorLeft = isWide ? 350.0 : 60.0;
+    final double rocketSize = isWide ? 64.0 : 48.0;
 
     return Positioned(
       top: anchorTop + _displayY,
@@ -615,8 +572,8 @@ class _FixedRocketState extends State<_FixedRocket>
         angle: _displayRotate * math.pi / 180,
         child: SvgPicture.asset(
           'assets/images/rocket.svg',
-          width: 64,
-          height: 64,
+          width: rocketSize,
+          height: rocketSize,
         ),
       ),
     );
