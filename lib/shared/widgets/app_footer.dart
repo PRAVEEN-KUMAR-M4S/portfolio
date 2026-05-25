@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme/app_colors.dart';
 import '../../core/services/portfolio_service.dart';
 
@@ -45,12 +46,15 @@ class _SocialIcon extends StatelessWidget {
   final String asset;
   final String url;
 
+  Future<void> _launch() async {
+    final uri = Uri.parse(url);
+    await launchUrl(uri, mode: LaunchMode.platformDefault, webOnlyWindowName: '_blank');
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // url_launcher can be used here when URL is provided
-      },
+      onTap: _launch,
       child: Image.asset(asset, width: 25, height: 25),
     );
   }
