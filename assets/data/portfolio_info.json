@@ -23,7 +23,7 @@
   "category": "Personal Project",
   "title": "3D Flutter Portfolio",
   "description": "An interactive 3D portfolio built with Flutter, featuring immersive animations, 3D models, and seamless navigation to showcase my skills and projects.",
-  "images": ["assets/images/project/desktop1.png", "assets/images/project/desktop2.png"],
+  "images": ["assets/images/project/desktop1.PNG", "assets/images/project/desktop2.PNG"],
   "projectUrl": "",
   "githubUrl": "https://github.com/PRAVEEN-KUMAR-M4S/3dmodel.github.io"
 },
