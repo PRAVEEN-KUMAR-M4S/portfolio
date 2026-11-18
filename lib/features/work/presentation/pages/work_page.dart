@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../shared/widgets/smooth_scroll.dart';
 import '../../../home/presentation/widgets/work_section.dart';
 
 class WorkPage extends StatelessWidget {
@@ -6,7 +7,7 @@ class WorkPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
+    return const SmoothScrollView(
       child: WorkSection(),
     );
   }

@@ -1,11 +1,11 @@
 {
-    "name": "personal_portfolio_paper_flutter",
-    "short_name": "personal_portfolio_paper_flutter",
+    "name": "Praveen Kumar — Portfolio",
+    "short_name": "Praveen",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FAF9F6",
+    "theme_color": "#3E3D41",
+    "description": "Portfolio of Praveen Kumar — software developer building mobile apps, scalable backends and digital experiences.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

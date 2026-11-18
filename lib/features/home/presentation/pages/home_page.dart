@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +10,7 @@ import '../../../../core/services/portfolio_service.dart';
 import 'package:personal_portfolio_paper_flutter/shared/widgets/app_footer.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../state/skills_animation_cubit.dart';
+import '../../../../shared/widgets/smooth_scroll.dart';
 import '../widgets/skills_section.dart';
 import '../widgets/work_section.dart';
 
@@ -21,10 +24,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
 
-  double _scrollProgress = 0;
-  double _scrollVelocity = 0;
+  /// Scroll values are published through notifiers rather than setState, so a
+  /// scroll frame never rebuilds the hero, the work cards and the footer.
+  final ValueNotifier<double> _scrollProgress = ValueNotifier<double>(0);
+  final ValueNotifier<double> _scrollVelocity = ValueNotifier<double>(0);
+  double _velocity = 0;
   double _lastScrollPixels = 0;
   DateTime _lastScrollTime = DateTime.now();
+  Timer? _velocityReset;
 
   @override
   void initState() {
@@ -40,13 +47,22 @@ class _HomePageState extends State<HomePage> {
     final now = DateTime.now();
     final dt = now.difference(_lastScrollTime).inMilliseconds / 1000.0;
     if (dt > 0) {
-      _scrollVelocity = (current - _lastScrollPixels) / dt;
+      _velocity = (current - _lastScrollPixels) / dt;
     }
     _lastScrollPixels = current;
     _lastScrollTime = now;
 
-    setState(() {
-      _scrollProgress = (current / maxScroll).clamp(0.0, 1.0);
+    final progress = (current / maxScroll).clamp(0.0, 1.0);
+    if ((progress - _scrollProgress.value).abs() > 0.0002) {
+      _scrollProgress.value = progress;
+    }
+    _scrollVelocity.value = _velocity;
+
+    // Let the rocket settle back to level once the wheel/drag stops.
+    _velocityReset?.cancel();
+    _velocityReset = Timer(const Duration(milliseconds: 120), () {
+      if (!mounted) return;
+      _scrollVelocity.value = 0;
     });
   }
 
@@ -54,6 +70,9 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _velocityReset?.cancel();
+    _scrollProgress.dispose();
+    _scrollVelocity.dispose();
     super.dispose();
   }
 
@@ -64,14 +83,8 @@ class _HomePageState extends State<HomePage> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          _HomePageContent(
-            scrollController: _scrollController,
-            scrollProgress: _scrollProgress,
-          ),
-          _FixedRocket(
-            scrollProgress: _scrollProgress,
-            scrollVelocity: _scrollVelocity,
-          ),
+          _HomePageContent(scrollController: _scrollController),
+          _FixedRocket(progress: _scrollProgress, velocity: _scrollVelocity),
         ],
       ),
     );
@@ -79,21 +92,17 @@ class _HomePageState extends State<HomePage> {
 }
 
 class _HomePageContent extends StatelessWidget {
-  const _HomePageContent({
-    required this.scrollController,
-    required this.scrollProgress,
-  });
+  const _HomePageContent({required this.scrollController});
 
   final ScrollController scrollController;
-  final double scrollProgress;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return SmoothScrollView(
       controller: scrollController,
       child: Column(
         children: [
-          _HeroSection(scrollProgress: scrollProgress),
+          const RepaintBoundary(child: _HeroSection()),
           const Divider(height: 2, thickness: 2, color: Color(0x44CCCCCC)),
           const WorkSection(),
           SkillsSection(scrollController: scrollController),
@@ -140,8 +149,7 @@ class _HomePageContent extends StatelessWidget {
 }
 
 class _HeroSection extends StatelessWidget {
-  const _HeroSection({required this.scrollProgress});
-  final double scrollProgress;
+  const _HeroSection();
 
   @override
   Widget build(BuildContext context) {
@@ -485,12 +493,9 @@ class _FloatingCardState extends State<_FloatingCard> {
 }
 
 class _FixedRocket extends StatefulWidget {
-  const _FixedRocket({
-    required this.scrollProgress,
-    required this.scrollVelocity,
-  });
-  final double scrollProgress;
-  final double scrollVelocity;
+  const _FixedRocket({required this.progress, required this.velocity});
+  final ValueListenable<double> progress;
+  final ValueListenable<double> velocity;
 
   @override
   State<_FixedRocket> createState() => _FixedRocketState();
@@ -508,6 +513,7 @@ class _FixedRocketState extends State<_FixedRocket>
 
   late final Ticker _ticker;
   Duration? _lastTime;
+  bool _ticking = false;
 
   static const double _stiffnessXY = 100;
   static const double _dampingXY = 30;
@@ -517,7 +523,24 @@ class _FixedRocketState extends State<_FixedRocket>
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker(_onTick)..start();
+    _ticker = createTicker(_onTick);
+    widget.progress.addListener(_wake);
+    widget.velocity.addListener(_wake);
+  }
+
+  /// The spring only runs while the rocket is actually moving, so an idle page
+  /// costs no frames at all.
+  void _wake() {
+    if (_ticking) return;
+    _ticking = true;
+    _lastTime = null;
+    _ticker.start();
+  }
+
+  void _sleep() {
+    if (!_ticking) return;
+    _ticking = false;
+    if (_ticker.isActive) _ticker.stop();
   }
 
   void _onTick(Duration elapsed) {
@@ -529,9 +552,9 @@ class _FixedRocketState extends State<_FixedRocket>
     _lastTime = elapsed;
     if (dt <= 0 || dt > 0.1) return;
 
-    final targetY = widget.scrollProgress * 250;
-    final targetX = _lerpX(widget.scrollProgress);
-    final targetRotate = (widget.scrollVelocity / 1000.0 * 25).clamp(
+    final targetY = widget.progress.value * 250;
+    final targetX = _lerpX(widget.progress.value);
+    final targetRotate = (widget.velocity.value / 1000.0 * 25).clamp(
       -25.0,
       25.0,
     );
@@ -542,11 +565,30 @@ class _FixedRocketState extends State<_FixedRocket>
         (-_stiffnessR * (_displayRotate - targetRotate) - _dampingR * _velR) *
         dt;
 
+    final settled =
+        (_displayX - targetX).abs() < 0.05 &&
+        (_displayY - targetY).abs() < 0.05 &&
+        (_displayRotate - targetRotate).abs() < 0.05 &&
+        _velX.abs() < 0.5 &&
+        _velY.abs() < 0.5 &&
+        _velR.abs() < 0.5;
+
     setState(() {
-      _displayX += _velX * dt;
-      _displayY += _velY * dt;
-      _displayRotate += _velR * dt;
+      if (settled) {
+        _displayX = targetX;
+        _displayY = targetY;
+        _displayRotate = targetRotate;
+        _velX = 0;
+        _velY = 0;
+        _velR = 0;
+      } else {
+        _displayX += _velX * dt;
+        _displayY += _velY * dt;
+        _displayRotate += _velR * dt;
+      }
     });
+
+    if (settled) _sleep();
   }
 
   double _lerpX(double t) {
@@ -556,6 +598,9 @@ class _FixedRocketState extends State<_FixedRocket>
 
   @override
   void dispose() {
+    widget.progress.removeListener(_wake);
+    widget.velocity.removeListener(_wake);
+    if (_ticker.isActive) _ticker.stop();
     _ticker.dispose();
     super.dispose();
   }

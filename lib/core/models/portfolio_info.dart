@@ -67,16 +67,19 @@ class SocialLinks {
     required this.instagram,
     required this.twitter,
     required this.linkedin,
+    this.github = '',
   });
 
   final String instagram;
   final String twitter;
   final String linkedin;
+  final String github;
 
   factory SocialLinks.fromJson(Map<String, dynamic> json) => SocialLinks(
         instagram: json['instagram'] as String,
         twitter: json['twitter'] as String,
         linkedin: json['linkedin'] as String,
+        github: json['github'] as String? ?? '',
       );
 }
 

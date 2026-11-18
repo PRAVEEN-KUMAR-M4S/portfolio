@@ -15,10 +15,19 @@
 
   "social": {
     "instagram": "https://www.instagram.com/pra__v__ee_/",
+    "github": "https://github.com/PRAVEEN-KUMAR-M4S",
     "twitter": "https://x.com/Praveen80883392",
     "linkedin": "https://www.linkedin.com/in/praveen-kumar-852097214"
   },
   "projects": [
+{
+  "category": "AI Project",
+  "title": "BillScan AI",
+  "description": "An AI expense tracker that turns a photo of a bill into clean, structured data. The Flutter app follows feature-first clean architecture with BLoC, a SQLite offline cache and a write-behind upload queue, and plugs into a FastAPI backend where Gemini reads each bill into a validated draft, enforces the maths before anything is saved, and turns spending into balance insights and smart tips.",
+  "images": ["assets/images/project.svg"],
+  "projectUrl": "https://billing-software-backend-wip4.onrender.com/docs",
+  "githubUrl": ""
+},
 {
   "category": "Personal Project",
   "title": "3D Flutter Portfolio",
@@ -53,7 +62,10 @@
      { "name": "Firebase", "icon": "assets/images/firebase.svg" },
     { "name": "Postgres Sql", "icon": "assets/images/postgres.svg" },
     { "name": "Github", "icon": "assets/images/github.svg" },
-    { "name": "Node Js", "icon": "assets/images/node.svg" }
+    { "name": "Node Js", "icon": "assets/images/node.svg" },
+    { "name": "Python", "icon": "assets/images/python.svg" },
+    { "name": "FastAPI", "icon": "assets/images/fastapi.svg" },
+    { "name": "Gemini AI", "icon": "assets/images/gemini.svg" }
    
   ]
 }

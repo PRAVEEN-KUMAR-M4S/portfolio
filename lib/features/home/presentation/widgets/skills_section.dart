@@ -11,6 +11,11 @@ const double _cardGap = 250.0; // col spacing
 const double _rowGap = 250.0; // row spacing
 const int _cols = 3;
 
+// Cards sit below the 700px header + 16px top padding + breathing room
+const double _cardsTopY = 716.0 + 40.0;
+// One card row plus breathing room, so the section grows with the skill count
+const double _cardRowHeight = 260.0;
+
 class SkillsSection extends StatefulWidget {
   const SkillsSection({super.key, required this.scrollController});
   final ScrollController scrollController;
@@ -21,8 +26,21 @@ class SkillsSection extends StatefulWidget {
 
 class _SkillsSectionState extends State<SkillsSection> {
   final GlobalKey _sectionKey = GlobalKey();
-  double _sectionProgress = 0.0;
+
+  /// Progress is published to the moving parts only, so a scroll frame repaints
+  /// the cards and the bucket instead of rebuilding the whole section (header,
+  /// background image and bucket art included) on every pixel.
+  final ValueNotifier<double> _progress = ValueNotifier<double>(0.0);
   bool _animationDone = false;
+
+  /// Card widgets never change, so they are built once and reused by the frame
+  /// builders - the animation only moves them.
+  late final List<Widget> _cards = PortfolioService.info.skills
+      .map((skill) => _SkillCard(name: skill.name, icon: skill.icon))
+      .toList();
+
+  int get _rowCount =>
+      (PortfolioService.info.skills.length / _cols).ceil().clamp(1, 99);
 
   @override
   void initState() {
@@ -33,6 +51,7 @@ class _SkillsSectionState extends State<SkillsSection> {
   @override
   void dispose() {
     widget.scrollController.removeListener(_onScroll);
+    _progress.dispose();
     super.dispose();
   }
 
@@ -52,22 +71,24 @@ class _SkillsSectionState extends State<SkillsSection> {
             .clamp(0.0, 1.0);
 
     if (!mounted) return;
-    setState(() {
-      _sectionProgress = progress;
-      final lastEnd =
-          0.2 + 0.2 + (PortfolioService.info.skills.length - 1) * 0.05;
-      if (progress >= lastEnd && !_animationDone) {
-        _animationDone = true;
-        context.read<SkillsAnimationCubit>().markDone();
-      }
-    });
+    if ((progress - _progress.value).abs() > 0.0005) {
+      _progress.value = progress;
+    }
+
+    final lastEnd =
+        0.2 + 0.2 + (PortfolioService.info.skills.length - 1) * 0.05;
+    if (progress >= lastEnd && !_animationDone) {
+      // One rebuild, so the bucket snaps level and the cards stay put.
+      setState(() => _animationDone = true);
+      context.read<SkillsAnimationCubit>().markDone();
+    }
   }
 
-  double get _bucketRotation {
+  double _bucketRotationFor(double progress) {
     if (_animationDone) return 0;
-    if (_sectionProgress < 0.1) return 0;
-    if (_sectionProgress > 0.2) return -60 * (math.pi / 180);
-    final t = (_sectionProgress - 0.1) / 0.1;
+    if (progress < 0.1) return 0;
+    if (progress > 0.2) return -60 * (math.pi / 180);
+    final t = (progress - 0.1) / 0.1;
     return -60 * t * (math.pi / 180);
   }
 
@@ -81,7 +102,11 @@ class _SkillsSectionState extends State<SkillsSection> {
   /// centerOffset = (contentWidth - 700) / 2  → shifts grid to center
   ///
   /// Bucket sits at right side of content, x ≈ contentWidth - 176 (half of 352)
-  (double, double, double) _itemTransform(int index, double sectionWidth) {
+  (double, double, double) _itemTransform(
+    int index,
+    double sectionWidth,
+    double progress,
+  ) {
     const double hPad = 100.0;
     final double contentWidth = sectionWidth - 2 * hPad;
 
@@ -93,11 +118,8 @@ class _SkillsSectionState extends State<SkillsSection> {
 
     // Final resting positions (Stack-local)
     final double finalX = gridLeft + (index % _cols) * _cardGap;
-    // Cards sit below the 700px header + 16px top padding
-    // Row 0: top of grid area; Row 1: +rowGap
-    const double cardsTopY =
-        716.0 + 40.0; // header(700) + py(16) + breathing room
-    final double finalY = cardsTopY + (index ~/ _cols) * _rowGap;
+    // Row 0: top of grid area; each next row is +rowGap below it
+    final double finalY = _cardsTopY + (index ~/ _cols) * _rowGap;
 
     if (_animationDone) return (finalX, finalY, 0);
 
@@ -120,7 +142,7 @@ class _SkillsSectionState extends State<SkillsSection> {
     const fallStart = 0.2;
     final fallEnd = fallStart + 0.2 + index * 0.05;
 
-    final p = _sectionProgress;
+    final p = progress;
 
     if (p < tiltStart) {
       // Hidden inside bucket — stacked with tiny offset per card
@@ -156,7 +178,11 @@ class _SkillsSectionState extends State<SkillsSection> {
         return Container(
           key: _sectionKey,
           width: double.infinity,
-          constraints: BoxConstraints(minHeight: isWide ? 1400 : 600),
+          constraints: BoxConstraints(
+            minHeight: isWide
+                ? _cardsTopY + (_rowCount - 1) * _rowGap + _cardRowHeight
+                : 600,
+          ),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -233,9 +259,14 @@ class _SkillsSectionState extends State<SkillsSection> {
 
                         // Animated bucket
                         if (isWide)
-                          Transform.rotate(
-                            angle: _bucketRotation,
-                            alignment: Alignment.bottomCenter,
+                          AnimatedBuilder(
+                            animation: _progress,
+                            builder: (context, child) => Transform.rotate(
+                              angle: _bucketRotationFor(_progress.value),
+                              alignment: Alignment.bottomCenter,
+                              child: child,
+                            ),
+                            // Built once; only the rotation is rebuilt.
                             child: SizedBox(
                               width: 352,
                               child: Stack(
@@ -305,20 +336,40 @@ class _SkillsSectionState extends State<SkillsSection> {
 
               // ── Animated skill cards ──────────────────────────────────
               if (isWide)
-                ...PortfolioService.info.skills.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final skill = entry.value;
-                  final (x, y, rot) = _itemTransform(index, sectionWidth);
+                Positioned.fill(
+                  child: AnimatedBuilder(
+                    animation: _progress,
+                    builder: (context, _) {
+                      final progress = _progress.value;
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: PortfolioService.info.skills
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                              final index = entry.key;
+                              final (x, y, rot) = _itemTransform(
+                                index,
+                                sectionWidth,
+                                progress,
+                              );
 
-                  return Positioned(
-                    left: x,
-                    top: y,
-                    child: Transform.rotate(
-                      angle: rot,
-                      child: _SkillCard(name: skill.name, icon: skill.icon),
-                    ),
-                  );
-                }),
+                              return Positioned(
+                                left: x,
+                                top: y,
+                                child: RepaintBoundary(
+                                  child: Transform.rotate(
+                                    angle: rot,
+                                    child: _cards[index],
+                                  ),
+                                ),
+                              );
+                            })
+                            .toList(),
+                      );
+                    },
+                  ),
+                ),
             ],
           ),
         );
@@ -329,13 +380,7 @@ class _SkillsSectionState extends State<SkillsSection> {
   Widget _buildSimpleGrid() {
     return Padding(
       padding: const EdgeInsets.only(top: 24),
-      child: Wrap(
-        spacing: 16,
-        runSpacing: 16,
-        children: PortfolioService.info.skills
-            .map((s) => _SkillCard(name: s.name, icon: s.icon))
-            .toList(),
-      ),
+      child: Wrap(spacing: 16, runSpacing: 16, children: _cards),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../home/state/skills_animation_cubit.dart';
 import '../../../home/presentation/widgets/skills_section.dart';
+import '../../../../shared/widgets/smooth_scroll.dart';
 
 class SkillsPage extends StatefulWidget {
   const SkillsPage({super.key});
@@ -23,7 +24,7 @@ class _SkillsPageState extends State<SkillsPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => SkillsAnimationCubit(),
-      child: SingleChildScrollView(
+      child: SmoothScrollView(
         controller: _scrollController,
         child: SkillsSection(scrollController: _scrollController),
       ),
